@@ -1,7 +1,26 @@
 package controller
 
-import "net/http"
+import (
+	"net/http"
 
-func CreateDwellTimeLog(w http.ResponseWriter, r *http.Request) {}
+	"github.com/go-chi/render"
+)
 
-func CreateClickLog(w http.ResponseWriter, r *http.Request) {}
+func CreateDwellTimeLog(w http.ResponseWriter, r *http.Request) {
+	p := &DwellTimeLogRequest{}
+	if err := render.Bind(r, p); err != nil {
+		render.Render(w, r, ErrResponseRenderer(err, http.StatusBadRequest))
+		return
+	}
+	render.Render(w, r, NewResponseRenderer(p, http.StatusOK))
+}
+
+func CreateClickLog(w http.ResponseWriter, r *http.Request) {
+	p := &ClickLogRequest{}
+	if err := render.Bind(r, p); err != nil {
+		render.Render(w, r, ErrResponseRenderer(err, http.StatusBadRequest))
+		return
+	}
+
+	render.Render(w, r, NewResponseRenderer(p, http.StatusOK))
+}

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"mitra/handler"
+	"mitra/controller"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -40,12 +40,12 @@ func router() chi.Router {
 
 	r.Route("/search", func(r chi.Router) {
 		// ListSearchPage
-		r.Get("/", handler.ListSearchResult)
+		r.Get("/", controller.ListSearchResult)
 	})
 
 	r.Route("/log", func(r chi.Router) {
-		r.Post("/dwell", handler.CreateDwellTimeLog)
-		r.Post("/click", handler.CreateClickLog)
+		r.Post("/dwell", controller.CreateDwellTimeLog)
+		r.Post("/click", controller.CreateClickLog)
 	})
 
 	return r

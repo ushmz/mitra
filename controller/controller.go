@@ -1,0 +1,51 @@
+package controller
+
+import (
+	"net/http"
+
+	"github.com/go-chi/render"
+)
+
+type ErrResponse struct {
+	Err            error `json:"-"`
+	HTTPStatusCode int   `json:"-"`
+
+	Message string `json:"message"`
+}
+
+func (er ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	render.Status(r, er.HTTPStatusCode)
+	return nil
+}
+
+func ErrResponseRenderer(err error, statusCode int) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: statusCode,
+		Message:        err.Error(),
+	}
+}
+
+type AccurateResponse struct {
+	HTTPStatusCode int `json:"-"`
+
+	Data    interface{} `json:"data,omitempty"`
+	Message string      `json:"message,omitempty"`
+}
+
+func (ar AccurateResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	render.Status(r, ar.HTTPStatusCode)
+	return nil
+}
+
+func NewResponseRenderer(data interface{}, statusCode int) render.Renderer {
+	msg := ""
+	if data == nil {
+		msg = http.StatusText(statusCode)
+	}
+	return &AccurateResponse{
+		HTTPStatusCode: statusCode,
+		Data:           data,
+		Message:        msg,
+	}
+}
