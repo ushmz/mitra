@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"mitra/handler"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -39,12 +40,12 @@ func router() chi.Router {
 
 	r.Route("/search", func(r chi.Router) {
 		// ListSearchPage
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {})
+		r.Get("/", handler.ListSearchResult)
 	})
 
 	r.Route("/log", func(r chi.Router) {
-		r.Post("/dwell", func(w http.ResponseWriter, r *http.Request) {})
-		r.Post("/click", func(w http.ResponseWriter, r *http.Request) {})
+		r.Post("/dwell", handler.CreateDwellTimeLog)
+		r.Post("/click", handler.CreateClickLog)
 	})
 
 	return r
@@ -62,4 +63,15 @@ func adminRouter() chi.Router {
 	})
 
 	return r
+}
+
+func adminOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isAdmin, ok := r.Context().Value("acl.admin").(bool)
+		if !ok || !isAdmin {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
