@@ -20,6 +20,8 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
+	r.Get("/", controller.Index)
+
 	r.Mount("/api", router())
 	r.Mount("/admin", adminRouter())
 

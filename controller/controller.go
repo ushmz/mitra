@@ -49,3 +49,15 @@ func NewResponseRenderer(data interface{}, statusCode int) render.Renderer {
 		Message:        msg,
 	}
 }
+
+// Index return greeting response
+func Index(w http.ResponseWriter, r *http.Request) {
+	greet := "" +
+		`   __  ____ __           ` + "\n" +
+		`  /  |/  (_) /________ _ ` + "\n" +
+		` / /|_/ / / __/ __/ _ \/ ` + "\n" +
+		`/_/  /_/_/\__/_/  \_,_/  ` + "\n" +
+		`=================================================` + "\n" +
+		`Simple backend API server for the user-study` + "\n"
+	render.PlainText(w, r, greet)
+}
