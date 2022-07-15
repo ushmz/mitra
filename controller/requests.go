@@ -56,3 +56,16 @@ func (p *ClickLogRequest) Bind(r *http.Request) error {
 	}
 	return nil
 }
+
+type ListSearchResultRequest struct {
+	Offset    int  `param:"offset"`
+	TaskID    int  `param:"task"`
+	Attribute bool `param:"attr"`
+}
+
+func (p *ListSearchResultRequest) Bind(r *http.Request) error {
+	if p == nil {
+		return errors.New("Missing required fields")
+	}
+	return nil
+}

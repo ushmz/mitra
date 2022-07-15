@@ -18,7 +18,7 @@ func (er ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func ErrResponseRenderer(err error, statusCode int) render.Renderer {
+func NewErrResponseRenderer(err error, statusCode int) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
 		HTTPStatusCode: statusCode,
