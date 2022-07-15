@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/render"
 )
 
+// ListSearchResult return listed search result
 func ListSearchResult(w http.ResponseWriter, r *http.Request) {
 	p := &ListSearchResultRequest{}
 

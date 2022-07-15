@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/render"
 )
 
+// ErrResponse is the struct used with error response
 type ErrResponse struct {
 	Err            error `json:"-"`
 	HTTPStatusCode int   `json:"-"`
@@ -13,11 +14,13 @@ type ErrResponse struct {
 	Message string `json:"message"`
 }
 
+// Render renders response header and body
 func (er ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, er.HTTPStatusCode)
 	return nil
 }
 
+// NewErrResponseRenderer return the struct for the accerate response
 func NewErrResponseRenderer(err error, statusCode int) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
@@ -26,6 +29,7 @@ func NewErrResponseRenderer(err error, statusCode int) render.Renderer {
 	}
 }
 
+// AccurateResponse is the struct used with error response
 type AccurateResponse struct {
 	HTTPStatusCode int `json:"-"`
 
@@ -33,11 +37,13 @@ type AccurateResponse struct {
 	Message string      `json:"message,omitempty"`
 }
 
+// Render renders response header and body
 func (ar AccurateResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, ar.HTTPStatusCode)
 	return nil
 }
 
+// NewResponseRenderer return the struct for the accerate response
 func NewResponseRenderer(data interface{}, statusCode int) render.Renderer {
 	msg := ""
 	if data == nil {
@@ -56,8 +62,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		`   __  ____ __           ` + "\n" +
 		`  /  |/  (_) /________ _ ` + "\n" +
 		` / /|_/ / / __/ __/ _ \/ ` + "\n" +
-		`/_/  /_/_/\__/_/  \_,_/  ` + "\n" +
-		`=================================================` + "\n" +
-		`Simple backend API server for the user-study` + "\n"
+		`/_/  /_/_/\__/_/  \_,_/  ` + "v1.0.0\n" +
+		`Simple backend API server for the user-study.` + "\n" +
+		`=================================================` + "\n"
 	render.PlainText(w, r, greet)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// InitDB initialize and return DB connection
 func InitDB() (*sqlx.DB, error) {
 	hostname := os.Getenv("HOST")
 	username := os.Getenv("USER")

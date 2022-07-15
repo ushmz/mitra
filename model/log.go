@@ -1,5 +1,7 @@
 package model
 
-func createDwellTimeLog() {}
+// CreateDwellTimeLog inserts new log row into DB
+func CreateDwellTimeLog() {}
 
-func createClickLog() {}
+// CreateClickLog inserts new log row into DB
+func CreateClickLog() {}
