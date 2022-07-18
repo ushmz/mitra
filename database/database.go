@@ -1,9 +1,9 @@
-package model
+package database
 
 import (
 	"errors"
 	"fmt"
-	"os"
+	"mitra/config"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -11,16 +11,18 @@ import (
 
 // InitDB initialize and return DB connection
 func InitDB() (*sqlx.DB, error) {
-	hostname := os.Getenv("HOST")
-	username := os.Getenv("USER")
-	password := os.Getenv("PASS")
-	database := os.Getenv("DATABASE")
-	port := os.Getenv("PORT")
+	conf := config.GetConfig()
+
+	host := conf.GetString("mysql.host")
+	user := conf.GetString("mysql.user")
+	port := conf.GetString("mysql.port")
+	pass := conf.GetString("mysql.password")
+	database := conf.GetString("mysql.database")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True",
-		username,
-		password,
-		hostname,
+		user,
+		pass,
+		host,
 		port,
 		database,
 	)
