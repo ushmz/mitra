@@ -2,6 +2,7 @@ package main
 
 import (
 	"mitra/controller"
+	"mitra/controller/admin"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -15,6 +16,8 @@ func router() chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Keep greeting to world forever"))
 	})
+
+	r.Post("/attendees", func(w http.ResponseWriter, r *http.Request) {})
 
 	r.Route("/search", func(r chi.Router) {
 		// ListSearchPage
@@ -35,9 +38,17 @@ func adminRouter() chi.Router {
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {})
 
+	r.Route("/attendees", func(r chi.Router) {
+		r.Get("/", admin.ListAttendees)
+		r.Get("/{id}", admin.GetAttendees)
+		r.Delete("/{id}", admin.DeleteAttendees)
+	})
+
 	r.Route("/log", func(r chi.Router) {
-		r.Get("/dwell", func(w http.ResponseWriter, r *http.Request) {})
-		r.Get("/click", func(w http.ResponseWriter, r *http.Request) {})
+		r.Get("/dwell", admin.ListDwellTimeLogs)
+		r.Get("/dwell/{user_id}", admin.ListDwellTimeLogs)
+		r.Get("/click", admin.ListClickLogs)
+		r.Get("/click/{user_id}", admin.ListClickLogs)
 	})
 
 	return r
