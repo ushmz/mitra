@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"mitra/config"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -58,11 +59,16 @@ func NewResponseRenderer(data interface{}, statusCode int) render.Renderer {
 
 // Index return greeting response
 func Index(w http.ResponseWriter, r *http.Request) {
+	c := config.GetConfig()
+	v := c.GetString("version")
+	if v == "" {
+		v = "beta"
+	}
 	greet := "" +
 		`   __  ____ __           ` + "\n" +
 		`  /  |/  (_) /________ _ ` + "\n" +
 		` / /|_/ / / __/ __/ _ \/ ` + "\n" +
-		`/_/  /_/_/\__/_/  \_,_/  ` + "v1.0.0\n" +
+		`/_/  /_/_/\__/_/  \_,_/  ` + c.GetString("version") + "\n" +
 		`Simple backend API server for the user-study.` + "\n" +
 		`=================================================` + "\n"
 	render.PlainText(w, r, greet)

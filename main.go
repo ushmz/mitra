@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"mitra/config"
 	"mitra/controller"
 	"net/http"
 
@@ -15,6 +16,11 @@ import (
 var gendoc = flag.Bool("docgen", false, "Generate router documentation")
 
 func main() {
+	if err := config.Init(); err != nil {
+		msg := fmt.Sprintf("Failed to load configurations\n%v", err)
+		panic(msg)
+	}
+
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
@@ -25,6 +31,7 @@ func main() {
 	r.Mount("/api", router())
 	r.Mount("/admin", adminRouter())
 
+	flag.Parse()
 	if *gendoc {
 		fmt.Println(docgen.JSONRoutesDoc(r))
 	}
