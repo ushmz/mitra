@@ -1,12 +1,18 @@
 package database
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"mitra/config"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+)
+
+const (
+	connectionAttempts = 3
+	pingTimeoutSecs    = 10
 )
 
 // InitDB initialize and return DB connection
@@ -32,12 +38,17 @@ func InitDB() (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	for i := 0; i < 30; i++ {
-		if err := d.Ping(); err != nil {
-			time.Sleep(1 * time.Second)
-			continue
+	for i := 0; i < connectionAttempts; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), pingTimeoutSecs*time.Second)
+		defer cancel()
+		if err := d.PingContext(ctx); err != nil {
+			if i == connectionAttempts-1 {
+				// Return error or Panic (log.Fatal()) migh be better.
+				return nil, errors.New("Failed to connect DB: Connection timeout")
+			}
+			fmt.Printf("Failed to ping DB: Retry in %d seconds", pingTimeoutSecs)
+			time.Sleep(pingTimeoutSecs * time.Second)
 		}
-		return d, nil
 	}
-	return nil, errors.New("Failed to connect DB: Connection timeout")
+	return d, nil
 }
