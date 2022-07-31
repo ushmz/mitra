@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: mitra-app
+    ports:
+      - 3333:3333
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    container_name: mitra-db
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    ports:
+      - 3366:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mitra
+      MYSQL_USER: mitra
+      MYSQL_PASSWORD: mitra
+      TZ: Asia/Tokyo
+    volumes:
+      - ./database/mysql/data:/var/lib/mysql
+      - ./database/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./database/mysql/init.d:/docker-entrypoint-initdb.d
+      - ./database/mysql/log:/var/log/mysql
+    init: true
+    tty: true
