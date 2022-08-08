@@ -1,15 +1,9 @@
--- DROP DATABASE IF EXISTS `mitra`;
--- CREATE DATABASE `mitra`;
---
--- use mitra;
---
 -- users
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `generated_secret` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `completion_code` int NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -17,13 +11,13 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- completion_codes
--- CREATE TABLE `completion_codes` (
---   `id` int NOT NULL AUTO_INCREMENT,
---   `user_id` int NOT NULL,
---   `completion_code` int NOT NULL,
---   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
---   PRIMARY KEY (`id`)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `completion_codes` (
+  `user_id` int NOT NULL,
+  `completion_code` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- tasks
 DROP TABLE IF EXISTS `tasks`;
