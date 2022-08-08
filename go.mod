@@ -3,6 +3,7 @@ module mitra
 go 1.18
 
 require (
+	github.com/doug-martin/goqu/v9 v9.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-chi/chi/v5 v5.0.7 // indirect
 	github.com/go-chi/docgen v1.2.0 // indirect

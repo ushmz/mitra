@@ -7,12 +7,17 @@ import (
 	"mitra/config"
 	"time"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
 
 const (
 	connectionAttempts = 3
 	pingTimeoutSecs    = 10
+)
+
+var (
+	dialect = goqu.Dialect("mysql")
 )
 
 // InitDB initialize and return DB connection
