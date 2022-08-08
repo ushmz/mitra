@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"mitra/config"
@@ -7,12 +7,25 @@ import (
 	"github.com/go-chi/render"
 )
 
+type Handler struct {
+	Log    *LogHandler
+	Search *SearchHandler
+	User   *UserHandler
+}
+
+func NewHandler() *Handler {
+	ctrl := &Handler{}
+	ctrl.Log = NewLogHandler()
+	ctrl.Search = NewSearchHandler()
+	ctrl.User = NewUserHandler()
+	return ctrl
+}
+
 // ErrResponse is the struct used with error response
 type ErrResponse struct {
-	Err            error `json:"-"`
-	HTTPStatusCode int   `json:"-"`
-
-	Message string `json:"message"`
+	Err            error  `json:"-"`
+	HTTPStatusCode int    `json:"-"`
+	Message        string `json:"message"`
 }
 
 // Render renders response header and body

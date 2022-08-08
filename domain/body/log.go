@@ -1,10 +1,7 @@
-package controller
+package body
 
 import (
-	"errors"
 	"net/http"
-
-	"github.com/go-chi/render"
 )
 
 // DwellTimeLogRequest : Struct for SERP dwell time log request body
@@ -22,20 +19,9 @@ type DwellTimeLogRequest struct {
 // Bind binds request body to the receiver
 func (p *DwellTimeLogRequest) Bind(r *http.Request) error {
 	if p == nil {
-		return errors.New("Missing required fields")
+		return ErrBadRequest
 	}
 	return nil
-}
-
-// CreateDwellTimeLog creates new dwell time log entity.
-// It is assumed that this will be called once a second.
-func CreateDwellTimeLog(w http.ResponseWriter, r *http.Request) {
-	p := &DwellTimeLogRequest{}
-	if err := render.Bind(r, p); err != nil {
-		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
-		return
-	}
-	render.Render(w, r, NewResponseRenderer(p, http.StatusOK))
 }
 
 // ClickLogRequest : Struct for SERP click log request body
@@ -68,29 +54,7 @@ type ClickLogRequest struct {
 // Bind binds request body to the receiver
 func (p *ClickLogRequest) Bind(r *http.Request) error {
 	if p == nil {
-		return errors.New("Missing required fields")
+		return ErrBadRequest
 	}
 	return nil
-}
-
-// CreateClickLog creates new click log entity.
-func CreateClickLog(w http.ResponseWriter, r *http.Request) {
-	p := &ClickLogRequest{}
-	if err := render.Bind(r, p); err != nil {
-		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
-		return
-	}
-
-	render.Render(w, r, NewResponseRenderer(p, http.StatusOK))
-}
-
-// CreateHoverLog creates new click log entity.
-func CreateHoverLog(w http.ResponseWriter, r *http.Request) {
-	p := &ClickLogRequest{}
-	if err := render.Bind(r, p); err != nil {
-		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
-		return
-	}
-
-	render.Render(w, r, NewResponseRenderer(p, http.StatusOK))
 }

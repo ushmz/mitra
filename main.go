@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"mitra/config"
-	"mitra/controller"
+	"mitra/handler"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -26,7 +26,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	r.Get("/", controller.Index)
+	r.Get("/", handler.Index)
 
 	r.Mount("/api", router())
 	r.Mount("/admin", adminRouter())

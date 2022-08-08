@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"errors"
@@ -8,21 +8,14 @@ import (
 	"github.com/go-chi/render"
 )
 
-type ListSearchResultRequest struct {
-	Offset    int  `param:"offset"`
-	TaskID    int  `param:"task"`
-	Attribute bool `param:"attr"`
-}
+type SearchHandler struct{}
 
-func (p *ListSearchResultRequest) Bind(r *http.Request) error {
-	if p == nil {
-		return errors.New("Missing required fields")
-	}
-	return nil
+func NewSearchHandler() *SearchHandler {
+	return &SearchHandler{}
 }
 
 // ListSearchResult return listed search result
-func ListSearchResult(w http.ResponseWriter, r *http.Request) {
+func (h *SearchHandler) ListSearchResult(w http.ResponseWriter, r *http.Request) {
 	p := &ListSearchResultRequest{}
 
 	taskID := r.URL.Query().Get("task")

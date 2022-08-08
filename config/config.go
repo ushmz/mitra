@@ -9,6 +9,7 @@ func Init() error {
 	config = viper.New()
 	config.SetConfigFile("yaml")
 	config.SetConfigName("config")
+	config.AddConfigPath(".")
 	config.AddConfigPath("config/")
 	config.SetDefault("version", "beta")
 	if err := config.ReadInConfig(); err != nil {
