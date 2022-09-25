@@ -1,11 +1,7 @@
-package body
+package domain
 
-import (
-	"net/http"
-)
-
-// DwellTimeLogRequest : Struct for SERP dwell time log request body
-type DwellTimeLogRequest struct {
+// DwellTimeLog : Struct for SERP dwell time log
+type DwellTimeLog struct {
 	// UserID : The ID of user (worker)
 	UserID int `db:"user_id" json:"user"`
 
@@ -14,18 +10,13 @@ type DwellTimeLogRequest struct {
 
 	// ConditionID : User's condition ID that means group and task category.
 	ConditionID int `db:"condition_id" json:"condition"`
+
+	// DwellTime : How many times the user spend in SERP
+	DwellTime int `db:"time" json:"dwell_time"`
 }
 
-// Bind binds request body to the receiver
-func (p *DwellTimeLogRequest) Bind(r *http.Request) error {
-	if p == nil {
-		return ErrBadRequest
-	}
-	return nil
-}
-
-// ClickLogRequest : Struct for SERP click log request body
-type ClickLogRequest struct {
+// ClickLog : Struct for SERP click log
+type ClickLog struct {
 	// Uid : The ID of user (worker)
 	UID int `db:"user_id" json:"user"`
 
@@ -48,13 +39,5 @@ type ClickLogRequest struct {
 	IsVisible bool `db:"is_visible" json:"visible"`
 
 	// IsFirstClick : The click event is the first click or not
-	IsFirstClick bool `db:"is_first_click" json:"is_first"`
-}
-
-// Bind binds request body to the receiver
-func (p *ClickLogRequest) Bind(r *http.Request) error {
-	if p == nil {
-		return ErrBadRequest
-	}
-	return nil
+	IsFirstClick bool `db:"is_first" json:"is_first"`
 }
