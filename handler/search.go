@@ -14,6 +14,19 @@ func NewSearchHandler() *SearchHandler {
 	return &SearchHandler{}
 }
 
+type ListSearchResultRequest struct {
+	Offset    int  `param:"offset"`
+	TaskID    int  `param:"task"`
+	Attribute bool `param:"attr"`
+}
+
+func (p *ListSearchResultRequest) Bind(r *http.Request) error {
+	if p == nil {
+		return ErrBadRequest
+	}
+	return nil
+}
+
 // ListSearchResult return listed search result
 func (h *SearchHandler) ListSearchResult(w http.ResponseWriter, r *http.Request) {
 	p := &ListSearchResultRequest{}

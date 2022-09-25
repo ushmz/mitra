@@ -12,6 +12,17 @@ func NewAuthHandler() *AuthHandler {
 	return &AuthHandler{}
 }
 
+type RegisterRequest struct {
+	UID string `json:"uid"`
+}
+
+func (p *RegisterRequest) Bind(r *http.Request) error {
+	if p == nil {
+		return ErrBadRequest
+	}
+	return nil
+}
+
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	p := &RegisterRequest{}
 	if err := render.Bind(r, p); err != nil {

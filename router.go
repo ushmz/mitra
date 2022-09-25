@@ -45,18 +45,18 @@ func adminRouter() chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {})
 
 	r.Route("/users", func(r chi.Router) {
-		r.Get("/", h.ListUsers)
-		r.Get("/{id}", h.GetUser)
-		r.Delete("/{id}", h.DeleteUser)
+		r.Get("/", h.User.ListUsers)
+		r.Get("/{id}", h.User.GetUser)
+		r.Delete("/{id}", h.User.DeleteUser)
 	})
 
 	r.Route("/log", func(r chi.Router) {
-		r.Get("/dwell", h.ListDwellTimeLogs)
-		r.Get("/dwell/{user_id}", h.ListDwellTimeLogs)
-		r.Get("/click", h.ListClickLogs)
-		r.Get("/click/{user_id}", h.ListClickLogs)
-		r.Get("/hover", h.ListHoverLogs)
-		r.Get("/hover/{user_id}", h.ListHoverLogs)
+		r.Get("/dwell", h.Log.ListDwellTimeLogs)
+		r.Get("/dwell/{user_id}", h.Log.ListDwellTimeLogs)
+		r.Get("/click", h.Log.ListClickLogs)
+		r.Get("/click/{user_id}", h.Log.ListClickLogs)
+		r.Get("/hover", h.Log.ListHoverLogs)
+		r.Get("/hover/{user_id}", h.Log.ListHoverLogs)
 	})
 
 	return r
