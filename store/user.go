@@ -2,15 +2,17 @@ package store
 
 import (
 	"context"
-	"mitra/domain/model"
+	"database/sql"
+	"mitra/domain"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
 
 type UserStore interface {
-	CreateUser(context.Context, model.User) error
-	IssueCompletionCode(context.Context, model.CompletionCode) error
+	CreateUser(context.Context, *domain.ImplicitUser) (*domain.UserSimple, error)
+	GetCompletionCode(ctx context.Context, userID int) (int, error)
+	SetCompletionCode(context.Context, *domain.CompletionCode) error
 }
 
 type UserStoreImple struct {
@@ -21,21 +23,28 @@ func NewUserStore(db *sqlx.DB) UserStore {
 	return &UserStoreImple{db: db}
 }
 
-func (s *UserStoreImple) CreateUser(ctx context.Context, u model.User) error {
+func (s *UserStoreImple) CreateUser(ctx context.Context, u *domain.ImplicitUser) (*domain.UserSimple, error) {
 	if s == nil {
-		return ErrNilReceiver
+		return nil, ErrNilReceiver
 	}
 
-	q, a, err := dialect.Insert("users").Rows(u).ToSQL()
+	q, a, err := dialect.
+		Insert("users").
+		Rows(u).
+		ToSQL()
 	if err != nil {
-		return ErrQueryBuildFailure
+		return nil, ErrQueryBuildFailure
 	}
 
-	if _, err := s.db.ExecContext(ctx, q, a...); err != nil {
-		return ErrDatabaseExecutionFailere
+	if rs, err := s.db.ExecContext(ctx, q, a...); err != nil {
+		return nil, ErrDatabaseExecutionFailere
+	} else {
+		id, err := rs.LastInsertId()
+		if err != nil {
+			return nil, ErrDatabaseExecutionFailere
+		}
+		return &domain.UserSimple{ID: int(id), ExternalID: u.ExternalID}, nil
 	}
-
-	return nil
 }
 
 func (s *UserStoreImple) UpdateUserUID(ctx context.Context, userID int, uid string) error {
@@ -43,7 +52,10 @@ func (s *UserStoreImple) UpdateUserUID(ctx context.Context, userID int, uid stri
 		return ErrNilReceiver
 	}
 
-	q, a, err := dialect.Update("users").Set(goqu.Record{"uid": uid}).Where(goqu.C("user_id").Eq(userID)).ToSQL()
+	q, a, err := dialect.
+		Update("users").
+		Set(goqu.Record{"uid": uid}).
+		Where(goqu.C("user_id").Eq(userID)).ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}
@@ -55,7 +67,32 @@ func (s *UserStoreImple) UpdateUserUID(ctx context.Context, userID int, uid stri
 	return nil
 }
 
-func (s *UserStoreImple) IssueCompletionCode(ctx context.Context, c model.CompletionCode) error {
+func (s *UserStoreImple) GetCompletionCode(ctx context.Context, userID int) (int, error) {
+	if s == nil {
+		return 0, ErrNilReceiver
+	}
+
+	q, a, err := dialect.
+		Select("completion_code").
+		From("completion_codes").
+		Where(goqu.C("user_id").Eq(userID)).
+		ToSQL()
+	if err != nil {
+		return 0, ErrQueryBuildFailure
+	}
+
+	var dest int
+	if err := s.db.GetContext(ctx, &dest, q, a...); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, ErrDatabaseExecutionFailere
+	}
+	return dest, nil
+
+}
+
+func (s *UserStoreImple) SetCompletionCode(ctx context.Context, c *domain.CompletionCode) error {
 	if s == nil {
 		return ErrNilReceiver
 	}

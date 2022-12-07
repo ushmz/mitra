@@ -11,4 +11,7 @@ var (
 
 	// ErrNilReceiver means the method is called with Nil receiver
 	ErrNilReceiver = errors.New("Called with Nil receiver")
+
+	// ErrUIDAlreadyExists means it failed to signup because of duplicated UID
+	ErrUIDAlreadyExists = errors.New("UID already exists")
 )

@@ -2,7 +2,7 @@ package store
 
 import (
 	"context"
-	"mitra/domain/model"
+	"mitra/domain"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
@@ -16,12 +16,12 @@ type GetLogsOpt struct {
 }
 
 type LogStore interface {
-	CreateClickLog(context.Context, model.ClickLog) error
-	CreateDwelltimeLog(context.Context, model.DwellTimeLog) error
-	ListClickLog(context.Context) ([]model.ClickLog, error)
-	ListDwellTimeLog(context.Context) ([]model.DwellTimeLog, error)
-	GetClickLogs(context.Context, GetLogsOpt) ([]model.ClickLog, error)
-	GetDwellTimeLogs(context.Context, GetLogsOpt) ([]model.DwellTimeLog, error)
+	CreateClickLog(context.Context, domain.ClickLog) error
+	CreateDwelltimeLog(context.Context, domain.DwellTimeLog) error
+	ListClickLogs(context.Context) ([]domain.ClickLog, error)
+	ListDwellTimeLogs(context.Context) ([]domain.DwellTimeLog, error)
+	GetClickLog(context.Context, GetLogsOpt) ([]domain.ClickLog, error)
+	GetDwellTimeLog(context.Context, GetLogsOpt) ([]domain.DwellTimeLog, error)
 }
 
 type LogStoreImpl struct {
@@ -34,7 +34,7 @@ func NewLogStore(db *sqlx.DB) LogStore {
 }
 
 // CreateClickLog insert new row to DB
-func (s *LogStoreImpl) CreateClickLog(ctx context.Context, p model.ClickLog) error {
+func (s *LogStoreImpl) CreateClickLog(ctx context.Context, p domain.ClickLog) error {
 	if s == nil {
 		return ErrNilReceiver
 	}
@@ -51,7 +51,7 @@ func (s *LogStoreImpl) CreateClickLog(ctx context.Context, p model.ClickLog) err
 }
 
 // CreateDwelltimeLog insert new row to DB
-func (s *LogStoreImpl) CreateDwelltimeLog(ctx context.Context, p model.DwellTimeLog) error {
+func (s *LogStoreImpl) CreateDwelltimeLog(ctx context.Context, p domain.DwellTimeLog) error {
 	if s == nil {
 		return ErrNilReceiver
 	}
@@ -68,7 +68,7 @@ func (s *LogStoreImpl) CreateDwelltimeLog(ctx context.Context, p model.DwellTime
 }
 
 // ListClickLog lists all click logs
-func (s *LogStoreImpl) ListClickLog(ctx context.Context) ([]model.ClickLog, error) {
+func (s *LogStoreImpl) ListClickLogs(ctx context.Context) ([]domain.ClickLog, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -81,7 +81,7 @@ func (s *LogStoreImpl) ListClickLog(ctx context.Context) ([]model.ClickLog, erro
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := []model.ClickLog{}
+	rs := []domain.ClickLog{}
 	if err := s.db.Select(&rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}
@@ -90,7 +90,7 @@ func (s *LogStoreImpl) ListClickLog(ctx context.Context) ([]model.ClickLog, erro
 }
 
 // GetClickLogs gets specific click logs
-func (s *LogStoreImpl) GetClickLogs(ctx context.Context, opt GetLogsOpt) ([]model.ClickLog, error) {
+func (s *LogStoreImpl) GetClickLog(ctx context.Context, opt GetLogsOpt) ([]domain.ClickLog, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -116,7 +116,7 @@ func (s *LogStoreImpl) GetClickLogs(ctx context.Context, opt GetLogsOpt) ([]mode
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := []model.ClickLog{}
+	rs := []domain.ClickLog{}
 	if err := s.db.Select(&rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}
@@ -125,7 +125,7 @@ func (s *LogStoreImpl) GetClickLogs(ctx context.Context, opt GetLogsOpt) ([]mode
 }
 
 // ListDwellTimeLog lists all dwell time logs
-func (s *LogStoreImpl) ListDwellTimeLog(ctx context.Context) ([]model.DwellTimeLog, error) {
+func (s *LogStoreImpl) ListDwellTimeLogs(ctx context.Context) ([]domain.DwellTimeLog, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -138,7 +138,7 @@ func (s *LogStoreImpl) ListDwellTimeLog(ctx context.Context) ([]model.DwellTimeL
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := []model.DwellTimeLog{}
+	rs := []domain.DwellTimeLog{}
 	if err := s.db.Select(&rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}
@@ -147,7 +147,7 @@ func (s *LogStoreImpl) ListDwellTimeLog(ctx context.Context) ([]model.DwellTimeL
 }
 
 // GetDwellTimeLogs gets specific dwell time logs
-func (s *LogStoreImpl) GetDwellTimeLogs(ctx context.Context, opt GetLogsOpt) ([]model.DwellTimeLog, error) {
+func (s *LogStoreImpl) GetDwellTimeLog(ctx context.Context, opt GetLogsOpt) ([]domain.DwellTimeLog, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -173,7 +173,7 @@ func (s *LogStoreImpl) GetDwellTimeLogs(ctx context.Context, opt GetLogsOpt) ([]
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := []model.DwellTimeLog{}
+	rs := []domain.DwellTimeLog{}
 	if err := s.db.Select(&rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}

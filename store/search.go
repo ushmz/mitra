@@ -1,13 +1,13 @@
 package store
 
 import (
-	"mitra/domain/model"
+	"mitra/domain"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type SearchStore interface {
-	GetSearchResults(offset, limit int) ([]model.SearchResult, error)
+	GetSearchResults(offset, limit int) ([]domain.SearchResult, error)
 }
 
 type SearchStoreImpl struct {
@@ -18,7 +18,7 @@ func NewSearchStore(db *sqlx.DB) SearchStore {
 	return &SearchStoreImpl{db: db}
 }
 
-func (s *SearchStoreImpl) GetSearchResults(offset, limit int) ([]model.SearchResult, error) {
+func (s *SearchStoreImpl) GetSearchResults(offset, limit int) ([]domain.SearchResult, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -33,7 +33,7 @@ func (s *SearchStoreImpl) GetSearchResults(offset, limit int) ([]model.SearchRes
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := make([]model.SearchResult, limit)
+	rs := make([]domain.SearchResult, limit)
 	if err := s.db.Select(&rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}

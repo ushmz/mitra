@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -48,10 +49,10 @@ func InitDB() (*sqlx.DB, error) {
 		defer cancel()
 		if err := d.PingContext(ctx); err != nil {
 			if i == connectionAttempts-1 {
-				// Return error or Panic (log.Fatal()) migh be better.
+				// Return error or Panic (log.Fatal()) might be better.
 				return nil, errors.New("Failed to connect DB: Connection timeout")
 			}
-			fmt.Printf("Failed to ping DB: Retry in %d seconds", pingTimeoutSecs)
+			fmt.Printf("Failed to ping DB: Retry in %d seconds\n", pingTimeoutSecs)
 			time.Sleep(pingTimeoutSecs * time.Second)
 		}
 	}

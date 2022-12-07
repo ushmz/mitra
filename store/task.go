@@ -2,19 +2,22 @@ package store
 
 import (
 	"context"
-	"mitra/domain/model"
+	"mitra/domain"
 
 	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
 // TaskStore : The store object for task data source.
 type TaskStore interface {
-	CreateTask(ctx context.Context, name string, description string) (*model.Task, error)
-	GetTaskSimple(ctx context.Context, id int64) (*model.TaskSimple, error)
-	GetTask(ctx context.Context, id int64) (*model.Task, error)
-	ListTasks(ctx context.Context, limit, offset int) ([]model.Task, error)
-	UpdateTasks(ctx context.Context, task *model.Task) (*model.Task, error)
+	GetTaskQueries(ctx context.Context) ([]domain.TaskTopic, error)
+	AssignTask(ctx context.Context, userID int, blacklist []string) (*domain.AssignedTask, error)
+	CreateTask(ctx context.Context, name string, description string) (*domain.Task, error)
+	GetTaskSimple(ctx context.Context, id int64) (*domain.TaskSimple, error)
+	GetTask(ctx context.Context, id int64) (*domain.Task, error)
+	ListTasks(ctx context.Context, limit, offset int) ([]domain.Task, error)
+	UpdateTasks(ctx context.Context, task *domain.Task) (*domain.Task, error)
 	DeleteTasks(ctx context.Context, id int64) error
 }
 
@@ -28,8 +31,121 @@ func NewTaskStore(db *sqlx.DB) TaskStore {
 	return &TaskStoreImpl{db: db}
 }
 
+func (s *TaskStoreImpl) GetTaskQueries(ctx context.Context) ([]domain.TaskTopic, error) {
+	if s == nil {
+		return nil, ErrNilReceiver
+	}
+
+	q, a, err := dialect.Select("id", "topic").From(goqu.T("tasks")).ToSQL()
+	if err != nil {
+		return nil, ErrQueryBuildFailure
+	}
+
+	dest := []domain.TaskTopic{}
+	if err := s.db.SelectContext(ctx, &dest, q, a...); err != nil {
+		return nil, ErrDatabaseExecutionFailere
+	}
+
+	return dest, nil
+}
+
+func (s *TaskStoreImpl) getAssignedTask(ctx context.Context, userID int) (*domain.AssignedTask, error) {
+	if s == nil {
+		return nil, ErrNilReceiver
+	}
+
+	q, a, err := dialect.
+		Select("a.task_id", "c.condition").
+		From(goqu.T("assignments").As("a")).
+		LeftJoin(
+			goqu.T("conditions").As("c"),
+			goqu.On(goqu.Ex{"a.condition_id": goqu.I("c.id")}),
+		).
+		Where(goqu.Ex{"user_id": userID}).
+		ToSQL()
+	if err != nil {
+		return nil, ErrQueryBuildFailure
+	}
+
+	dest := []domain.AssignedTask{}
+	if err := s.db.SelectContext(ctx, &dest, q, a...); err != nil {
+		return nil, ErrDatabaseExecutionFailere
+	}
+
+	if len(dest) == 0 {
+		return nil, nil
+	}
+
+	return &dest[0], nil
+}
+
+func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, blacklist []string) (*domain.AssignedTask, error) {
+	if s == nil {
+		return nil, ErrNilReceiver
+	}
+
+	assigned, err := s.getAssignedTask(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if assigned != nil {
+		return assigned, nil
+	}
+
+	q, a, err := dialect.
+		Select("g.id", "g.task_id", "c.condition", "gc.counts").
+		From(goqu.T("groups").As("g")).
+		LeftJoin(
+			goqu.T("conditions").As("c"),
+			goqu.On(goqu.Ex{"g.condition_id": goqu.I("c.id")}),
+		).
+		LeftJoin(
+			goqu.T("group_counts").As("gc"),
+			goqu.On(goqu.Ex{"g.id": goqu.I("gc.group_id")}),
+		).
+		Order(goqu.I("gc.counts").Asc()).
+		Limit(1).
+		ToSQL()
+	if err != nil {
+		return nil, ErrQueryBuildFailure
+	}
+
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, ErrDatabaseExecutionFailere
+	}
+
+	dest := struct {
+		ID        int    `db:"id"`
+		TaskID    int    `db:"task_id"`
+		Condition string `db:"condition"`
+		Counts    int    `db:"counts"`
+	}{}
+	if err := tx.GetContext(ctx, &dest, q, a...); err != nil {
+		return nil, ErrDatabaseExecutionFailere
+	}
+
+	q, a, err = dialect.
+		Update("group_counts").
+		Set(goqu.Record{"counts": dest.Counts + 1}).
+		Where(goqu.Ex{"group_id": dest.ID}).
+		ToSQL()
+
+	if _, err := tx.ExecContext(ctx, q, a...); err != nil {
+		return nil, ErrDatabaseExecutionFailere
+	}
+
+	tx.Commit()
+
+	return &domain.AssignedTask{
+		TaskID:    dest.TaskID,
+		Condition: dest.Condition,
+	}, nil
+}
+
 // CreateTask creates a new task record in DB
-func (s *TaskStoreImpl) CreateTask(ctx context.Context, title, description string) (*model.Task, error) {
+func (s *TaskStoreImpl) CreateTask(ctx context.Context, title, description string) (*domain.Task, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -52,7 +168,7 @@ func (s *TaskStoreImpl) CreateTask(ctx context.Context, title, description strin
 		return nil, ErrDatabaseExecutionFailere
 	}
 
-	return &model.Task{
+	return &domain.Task{
 		ID:          id,
 		Title:       title,
 		Description: description,
@@ -60,7 +176,7 @@ func (s *TaskStoreImpl) CreateTask(ctx context.Context, title, description strin
 }
 
 // GetTaskSimple gets single instance of task for normal users.
-func (s *TaskStoreImpl) GetTaskSimple(ctx context.Context, id int64) (*model.TaskSimple, error) {
+func (s *TaskStoreImpl) GetTaskSimple(ctx context.Context, id int64) (*domain.TaskSimple, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -70,7 +186,7 @@ func (s *TaskStoreImpl) GetTaskSimple(ctx context.Context, id int64) (*model.Tas
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := &model.TaskSimple{}
+	rs := &domain.TaskSimple{}
 	if err := s.db.GetContext(ctx, rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}
@@ -79,7 +195,7 @@ func (s *TaskStoreImpl) GetTaskSimple(ctx context.Context, id int64) (*model.Tas
 }
 
 // GetTask gets single instance of task for admin users.
-func (s *TaskStoreImpl) GetTask(ctx context.Context, id int64) (*model.Task, error) {
+func (s *TaskStoreImpl) GetTask(ctx context.Context, id int64) (*domain.Task, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -89,7 +205,7 @@ func (s *TaskStoreImpl) GetTask(ctx context.Context, id int64) (*model.Task, err
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := &model.Task{}
+	rs := &domain.Task{}
 	if err := s.db.GetContext(ctx, rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}
@@ -98,7 +214,7 @@ func (s *TaskStoreImpl) GetTask(ctx context.Context, id int64) (*model.Task, err
 }
 
 // ListTasks gets a number of tasks for admin users.
-func (s *TaskStoreImpl) ListTasks(ctx context.Context, limit int, offset int) ([]model.Task, error) {
+func (s *TaskStoreImpl) ListTasks(ctx context.Context, limit int, offset int) ([]domain.Task, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
@@ -118,7 +234,7 @@ func (s *TaskStoreImpl) ListTasks(ctx context.Context, limit int, offset int) ([
 		return nil, ErrQueryBuildFailure
 	}
 
-	rs := make([]model.Task, limit)
+	rs := make([]domain.Task, limit)
 	if err := s.db.SelectContext(ctx, rs, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
 	}
@@ -127,7 +243,7 @@ func (s *TaskStoreImpl) ListTasks(ctx context.Context, limit int, offset int) ([
 }
 
 // UpdateTasks updates a task for admin users.
-func (s *TaskStoreImpl) UpdateTasks(ctx context.Context, task *model.Task) (*model.Task, error) {
+func (s *TaskStoreImpl) UpdateTasks(ctx context.Context, task *domain.Task) (*domain.Task, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
