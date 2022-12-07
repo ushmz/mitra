@@ -16,7 +16,9 @@ services:
     ports:
       - 3366:3306
     environment:
+      MYSQL_ROOT_HOST: '%'
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_HOST: mitra
       MYSQL_DATABASE: mitra
       MYSQL_USER: mitra
       MYSQL_PASSWORD: mitra

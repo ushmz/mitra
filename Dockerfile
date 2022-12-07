@@ -8,7 +8,7 @@ COPY ./go.sum .
 RUN go mod download
 
 COPY . /go/src/app
-RUN CGO_ENABLED=0 go build -o /go/bin/api ./main.go ./router.go ./middleware.go
+RUN CGO_ENABLED=0 go build -o /go/bin/api ./*.go
 
 FROM scratch as prod
 COPY --from=builder /go/bin/api /go/bin/api
