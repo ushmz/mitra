@@ -2,22 +2,28 @@ package handler
 
 import (
 	"mitra/config"
+	"mitra/store"
 	"net/http"
 
+	firebase "firebase.google.com/go"
 	"github.com/go-chi/render"
+	"github.com/jmoiron/sqlx"
 )
 
 type Handler struct {
 	Log    *LogHandler
 	Search *SearchHandler
+	Task   *TaskHandler
 	User   *UserHandler
 }
 
-func NewHandler() *Handler {
+func NewHandler(db *sqlx.DB, app *firebase.App) *Handler {
+	s := store.New(db, app)
 	return &Handler{
 		Log:    NewLogHandler(),
+		Task:   NewTaskHandler(s),
 		Search: NewSearchHandler(),
-		User:   NewUserHandler(),
+		User:   NewUserHandler(s),
 	}
 }
 

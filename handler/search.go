@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"mitra/domain"
 	"net/http"
 	"strconv"
 
@@ -15,16 +16,9 @@ func NewSearchHandler() *SearchHandler {
 }
 
 type ListSearchResultRequest struct {
-	Offset    int  `param:"offset"`
-	TaskID    int  `param:"task"`
-	Attribute bool `param:"attr"`
-}
-
-func (p *ListSearchResultRequest) Bind(r *http.Request) error {
-	if p == nil {
-		return ErrBadRequest
-	}
-	return nil
+	domain.RequestBody
+	Offset int
+	TaskID int
 }
 
 // ListSearchResult return listed search result
@@ -54,12 +48,6 @@ func (h *SearchHandler) ListSearchResult(w http.ResponseWriter, r *http.Request)
 		} else {
 			p.Offset = o
 		}
-	}
-
-	if attribute := r.URL.Query().Get("attr"); attribute == "1" {
-		p.Attribute = true
-	} else {
-		p.Attribute = false
 	}
 
 	render.Render(w, r, NewResponseRenderer(p, http.StatusOK))

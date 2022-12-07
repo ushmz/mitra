@@ -4,26 +4,35 @@ import (
 	"mitra/handler"
 	"net/http"
 
+	firebase "firebase.google.com/go"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jmoiron/sqlx"
 )
 
-func router() chi.Router {
+func router(db *sqlx.DB, fb *firebase.App) chi.Router {
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
+	h := handler.NewHandler(db, fb)
 
-	h := handler.NewHandler()
+	r.Post("/signup", h.User.CreateUser)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Keep greeting to world forever"))
+	return r
+}
+
+func authRouter(db *sqlx.DB, fb *firebase.App) chi.Router {
+	r := chi.NewRouter()
+	// r.Use(firebaseAuth(fb))
+
+	h := handler.NewHandler(db, fb)
+
+	r.Route("/user", func(r chi.Router) {
+		r.Post("/assign", h.Task.AssignTask)
 	})
 
-	r.Route("/attendees", func(r chi.Router) {
-		r.Post("/", h.User.CreateUser)
+	r.Route("/task", func(r chi.Router) {
+		r.Get("/topics", h.Task.GetTaskQueries)
 	})
 
 	r.Route("/search", func(r chi.Router) {
-		// ListSearchPage
 		r.Get("/", h.Search.ListSearchResult)
 	})
 
@@ -36,9 +45,10 @@ func router() chi.Router {
 	return r
 }
 
-func adminRouter() chi.Router {
+func adminRouter(fb *firebase.App) chi.Router {
 	r := chi.NewRouter()
-	r.Use(adminOnly)
+	// r.Use(firebaseAuth(fb))
+	r.Use(adminOnly())
 
 	h := handler.NewAdminHandler()
 
