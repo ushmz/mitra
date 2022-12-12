@@ -15,10 +15,14 @@ import (
 	"github.com/go-chi/render"
 )
 
-var gendoc = flag.Bool("docgen", false, "Generate router documentation")
+var (
+	gendoc = flag.Bool("docgen", false, "Generate router documentation")
+	conf   = flag.String("config", "config", "Config file name (exclude extension)")
+)
 
 func main() {
-	err := config.Init()
+	flag.Parse()
+	err := config.Init(*conf)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to load configurations\n%v", err)
 		panic(msg)
@@ -47,7 +51,6 @@ func main() {
 	r.Mount("/api/a", authRouter(db, fb))
 	// r.Mount("/api/admin", adminRouter())
 
-	flag.Parse()
 	if *gendoc {
 		fmt.Println(docgen.JSONRoutesDoc(r))
 	}

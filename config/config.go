@@ -5,10 +5,10 @@ import "github.com/spf13/viper"
 var config *viper.Viper
 
 // Init read config file and set variables
-func Init() error {
+func Init(configName string) error {
 	config = viper.New()
 	config.SetConfigFile("yaml")
-	config.SetConfigName("config")
+	config.SetConfigName(configName)
 	config.AddConfigPath(".")
 	config.AddConfigPath("config/")
 	config.SetDefault("version", "beta")

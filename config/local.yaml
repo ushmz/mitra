@@ -1,7 +1,7 @@
 version: 1.0.0
 mysql:
-  host: mitra-db
+  host: 127.0.0.1
   user: mitra
-  port: 3306
+  port: 3366
   password: mitra
   database: mitra
