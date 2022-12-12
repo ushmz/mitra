@@ -2,10 +2,10 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-  bin = "./tmp/mitra"
-  cmd = "go build -o ./tmp/mitra ."
+  bin = "./tmp/mitra --config local"
+  cmd = "go build -o ./tmp/mitra *.go"
   delay = 1000
-  exclude_dir = ["assets", "tmp", "vendor"]
+  exclude_dir = [".git", "assets", "database", "tmp", "vendor"]
   exclude_file = []
   exclude_regex = []
   exclude_unchanged = false
