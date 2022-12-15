@@ -25,19 +25,31 @@ var (
 func InitDB() (*sqlx.DB, error) {
 	conf := config.GetConfig()
 
+	config := conf.GetString("config")
 	host := conf.GetString("mysql.host")
 	user := conf.GetString("mysql.user")
 	port := conf.GetString("mysql.port")
 	pass := conf.GetString("mysql.password")
 	database := conf.GetString("mysql.database")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True",
-		user,
-		pass,
-		host,
-		port,
-		database,
-	)
+	var dsn string
+
+	if config == "local" {
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?tls=true&charset=utf8mb4&parseTime=True",
+			user,
+			pass,
+			host,
+			port,
+			database,
+		)
+	} else {
+		dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s?tls=true&charset=utf8mb4&parseTime=True",
+			user,
+			pass,
+			host,
+			database,
+		)
+	}
 
 	d, err := sqlx.Open("mysql", dsn)
 	if err != nil {

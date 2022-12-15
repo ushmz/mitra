@@ -12,6 +12,7 @@ func Init(configName string) error {
 	config.AddConfigPath(".")
 	config.AddConfigPath("config/")
 	config.SetDefault("version", "beta")
+	config.SetDefault("config", configName)
 	if err := config.ReadInConfig(); err != nil {
 		return err
 	}
