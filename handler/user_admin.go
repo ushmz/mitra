@@ -36,9 +36,9 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 // ListUsers lists all attendees
 func (h *AdminUserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
-	data := []domain.User{
-		{UID: "mitra"},
-		{UID: "varuna"},
+	data := []domain.ImplicitUser{
+		{ExternalID: "mitra"},
+		{ExternalID: "varuna"},
 	}
 	render.JSON(w, r, data)
 }

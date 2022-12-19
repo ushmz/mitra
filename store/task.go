@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"mitra/domain"
 
 	"github.com/doug-martin/goqu/v9"
@@ -64,11 +65,13 @@ func (s *TaskStoreImpl) getAssignedTask(ctx context.Context, userID int) (*domai
 		Where(goqu.Ex{"user_id": userID}).
 		ToSQL()
 	if err != nil {
+		fmt.Println(err)
 		return nil, ErrQueryBuildFailure
 	}
 
 	dest := []domain.AssignedTask{}
 	if err := s.db.SelectContext(ctx, &dest, q, a...); err != nil {
+		fmt.Println(err)
 		return nil, ErrDatabaseExecutionFailere
 	}
 
@@ -86,10 +89,12 @@ func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, blacklist []
 
 	assigned, err := s.getAssignedTask(ctx, userID)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
 	if assigned != nil {
+		fmt.Println(err)
 		return assigned, nil
 	}
 
@@ -133,6 +138,7 @@ func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, blacklist []
 		ToSQL()
 
 	if _, err := tx.ExecContext(ctx, q, a...); err != nil {
+		fmt.Println(err)
 		return nil, ErrDatabaseExecutionFailere
 	}
 

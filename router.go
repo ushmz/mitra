@@ -34,6 +34,10 @@ func authRouter(db *sqlx.DB, fb *firebase.App) chi.Router {
 
 	r.Route("/search", func(r chi.Router) {
 		r.Get("/", h.Search.ListSearchResult)
+		r.Get("/test", h.Search.GetSimilarweb)
+		r.Get("/icon", h.Search.ListSearchResult)
+		r.Get("/ratio", h.Search.ListSearchResult)
+		r.Get("/purpose", h.Search.ListSearchResult)
 	})
 
 	r.Route("/log", func(r chi.Router) {

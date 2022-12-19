@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"mitra/domain"
 	"mitra/store"
@@ -83,6 +84,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	p := &CreateUserRequest{}
 	if err := render.Bind(r, p); err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
 		return
 	}
@@ -106,17 +108,17 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.Store.Auth.GenerateToken(ctx, fu.FirebaseUID)
-	if err != nil {
-		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
-		return
-	}
+	// token, err := h.Store.Auth.GenerateToken(ctx, fu.FirebaseUID)
+	// if err != nil {
+	// 	render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
+	// 	return
+	// }
 
 	render.Render(w, r, NewResponseRenderer(
 		&domain.User{
 			ID:         user.ID,
 			ExternalID: user.ExternalID,
-			Token:      token,
+			Token:      "",
 		},
 		http.StatusOK,
 	))

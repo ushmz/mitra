@@ -19,6 +19,12 @@ var (
 
 	// ErrInternal means the errors which details does not matter
 	ErrInternal = errors.New("Somethig went wrong")
+
+	// ErrNoRequiredParameter
+	ErrNoRequiredParameter = errors.New("No Required parameter")
+
+	// ErrInvalidParameter
+	ErrInvalidParameter = errors.New("Invalid parameter")
 )
 
 // ErrResponse is the struct used with error response

@@ -22,7 +22,7 @@ func NewHandler(db *sqlx.DB, app *firebase.App) *Handler {
 	return &Handler{
 		Log:    NewLogHandler(),
 		Task:   NewTaskHandler(s),
-		Search: NewSearchHandler(),
+		Search: NewSearchHandler(s),
 		User:   NewUserHandler(s),
 	}
 }

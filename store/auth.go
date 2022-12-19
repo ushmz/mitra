@@ -7,7 +7,6 @@ import (
 	"time"
 
 	firebase "firebase.google.com/go"
-	"firebase.google.com/go/auth"
 )
 
 // UserAuthentication : Interface for the user authentication.
@@ -46,26 +45,26 @@ func (u *AuthenticationImpl) RegisterUser(ctx context.Context, externalID, secre
 		return nil, ErrNilReceiver
 	}
 
-	client, err := u.App.Auth(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("Try to get auth client: %w", err)
-	}
+	// client, err := u.App.Auth(ctx)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Try to get auth client: %w", err)
+	// }
+	//
+	// params := (&auth.UserToCreate{}).
+	// 	UID(externalID).
+	// 	Email(externalID + "@mitra.ushmz.org").
+	// 	EmailVerified(true).
+	// 	Password(secret)
 
-	params := (&auth.UserToCreate{}).
-		UID(externalID).
-		Email(externalID + "@mitra.ushmz.org").
-		EmailVerified(true).
-		Password(secret)
+	// user, err := client.CreateUser(ctx, params)
+	// if err != nil {
+	// 	if auth.IsUIDAlreadyExists(err) {
+	// 		return nil, ErrUIDAlreadyExists
+	// 	}
+	// 	return nil, fmt.Errorf("Try to create user: %w", err)
+	// }
 
-	user, err := client.CreateUser(ctx, params)
-	if err != nil {
-		if auth.IsUIDAlreadyExists(err) {
-			return nil, ErrUIDAlreadyExists
-		}
-		return nil, fmt.Errorf("Try to create user: %w", err)
-	}
-
-	return &domain.ImplicitUser{ExternalID: externalID, FirebaseUID: user.UID}, nil
+	return &domain.ImplicitUser{ExternalID: externalID, FirebaseUID: externalID}, nil
 }
 
 // DeleteUser : Delete user from application.

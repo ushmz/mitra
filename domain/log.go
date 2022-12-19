@@ -23,8 +23,8 @@ type ClickLog struct {
 	// TaskID : The ID of task that user working.
 	TaskID int `db:"task_id" json:"task"`
 
-	// ConditionID : User's condition ID that means group and task category.
-	ConditionID int `db:"condition_id" json:"condition"`
+	// Condition : User's condition ID that means group and task category.
+	Condition int `db:"condition" json:"condition"`
 
 	// Time : User's page viewing time.
 	Time int `db:"time_on_page" json:"time"`
