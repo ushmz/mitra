@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"mitra/domain"
 
 	"github.com/doug-martin/goqu/v9"
@@ -39,12 +40,13 @@ func (s *LogStoreImpl) CreateClickLog(ctx context.Context, p domain.ClickLog) er
 		return ErrNilReceiver
 	}
 
-	q, a, err := dialect.Insert("click_logs").Rows(p).ToSQL()
+	q, a, err := dialect.Insert("logs_event").Rows(p).ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}
 
-	if _, err := s.db.ExecContext(ctx, q, a); err != nil {
+	if _, err := s.db.ExecContext(ctx, q, a...); err != nil {
+		fmt.Println(err)
 		return ErrDatabaseExecutionFailere
 	}
 	return nil
@@ -56,12 +58,20 @@ func (s *LogStoreImpl) CreateDwelltimeLog(ctx context.Context, p domain.DwellTim
 		return ErrNilReceiver
 	}
 
-	q, a, err := dialect.Insert("dwell_time_logs").Rows(p).ToSQL()
+	q, a, err := dialect.
+		Insert("logs_serp_dwell_time").
+		Rows(p).
+		OnConflict(
+			goqu.DoUpdate(
+				"time_on_page",
+				goqu.Record{"time_on_page": goqu.L("time_on_page+1")})).
+		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}
 
-	if _, err := s.db.ExecContext(ctx, q, a); err != nil {
+	if _, err := s.db.ExecContext(ctx, q, a...); err != nil {
+		fmt.Println(err)
 		return ErrDatabaseExecutionFailere
 	}
 	return nil

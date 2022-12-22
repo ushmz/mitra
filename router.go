@@ -29,6 +29,7 @@ func authRouter(db *sqlx.DB, fb *firebase.App) chi.Router {
 	})
 
 	r.Route("/task", func(r chi.Router) {
+		r.Get("/", h.Task.GetTaskByID)
 		r.Get("/topics", h.Task.GetTaskQueries)
 	})
 
@@ -43,7 +44,7 @@ func authRouter(db *sqlx.DB, fb *firebase.App) chi.Router {
 	r.Route("/log", func(r chi.Router) {
 		r.Post("/dwell", h.Log.CreateDwellTimeLog)
 		r.Post("/click", h.Log.CreateClickLog)
-		r.Post("/hover", h.Log.CreateHoverLog)
+		// r.Post("/hover", h.Log.CreateHoverLog)
 	})
 
 	return r

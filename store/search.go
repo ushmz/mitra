@@ -33,6 +33,7 @@ func (s *SearchStoreImpl) GetSearchResults(ctx context.Context, offset, limit in
 		From("search_pages").
 		Limit(uint(limit)).
 		Offset(uint(offset * limit)).
+		Prepared(true).
 		ToSQL()
 	if err != nil {
 		return nil, ErrQueryBuildFailure

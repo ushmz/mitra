@@ -34,7 +34,6 @@ func InitDB() (*sqlx.DB, error) {
 	database := conf.GetString("mysql.database")
 
 	var dsn string
-
 	if config == "local" {
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True",
 			user,

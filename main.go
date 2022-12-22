@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"mitra/auth"
 	"mitra/config"
 	"mitra/handler"
 	"mitra/store"
@@ -33,11 +34,11 @@ func main() {
 		panic(msg)
 	}
 
-	// fb, err := auth.InitFirebaseApp()
-	// if err != nil {
-	// 	msg := fmt.Sprintf("Failed to initialize firebase SDK\n%v", err)
-	// 	panic(msg)
-	// }
+	fb, err := auth.InitFirebaseApp()
+	if err != nil {
+		msg := fmt.Sprintf("Failed to initialize firebase SDK\n%v", err)
+		panic(msg)
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -46,8 +47,8 @@ func main() {
 
 	r.Get("/", handler.Index)
 
-	r.Mount("/api/u", router(db, nil))
-	r.Mount("/api/a", authRouter(db, nil))
+	r.Mount("/api/u", router(db, fb))
+	r.Mount("/api/a", authRouter(db, fb))
 	// r.Mount("/api/admin", adminRouter())
 
 	if *gendoc {

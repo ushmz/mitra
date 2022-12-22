@@ -20,7 +20,7 @@ type Handler struct {
 func NewHandler(db *sqlx.DB, app *firebase.App) *Handler {
 	s := store.New(db, app)
 	return &Handler{
-		Log:    NewLogHandler(),
+		Log:    NewLogHandler(s),
 		Task:   NewTaskHandler(s),
 		Search: NewSearchHandler(s),
 		User:   NewUserHandler(s),

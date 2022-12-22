@@ -2,7 +2,9 @@ package domain
 
 type Task struct {
 	ID          int64  `db:"id" json:"id"`
+	Topic       string `db:"topic" json:"topic"`
 	Title       string `db:"title" json:"title"`
+	Query       string `db:"query" json:"query"`
 	Description string `db:"description" json:"description"`
 }
 
@@ -24,4 +26,9 @@ type AssignedTask struct {
 type TaskTopic struct {
 	TaskID int    `db:"id" json:"id"`
 	Topic  string `db:"topic" json:"topic"`
+}
+
+type TaskTopicUsed struct {
+	Task1 bool `json:"task1"`
+	Task2 bool `json:"task2"`
 }

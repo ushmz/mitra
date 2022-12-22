@@ -13,7 +13,7 @@ import (
 // TaskStore : The store object for task data source.
 type TaskStore interface {
 	GetTaskQueries(ctx context.Context) ([]domain.TaskTopic, error)
-	AssignTask(ctx context.Context, userID int, blacklist []string) (*domain.AssignedTask, error)
+	AssignTask(ctx context.Context, userID int, used *domain.TaskTopicUsed) (*domain.AssignedTask, error)
 	CreateTask(ctx context.Context, name string, description string) (*domain.Task, error)
 	GetTaskSimple(ctx context.Context, id int64) (*domain.TaskSimple, error)
 	GetTask(ctx context.Context, id int64) (*domain.Task, error)
@@ -56,12 +56,8 @@ func (s *TaskStoreImpl) getAssignedTask(ctx context.Context, userID int) (*domai
 	}
 
 	q, a, err := dialect.
-		Select("a.task_id", "c.condition").
-		From(goqu.T("assignments").As("a")).
-		LeftJoin(
-			goqu.T("conditions").As("c"),
-			goqu.On(goqu.Ex{"a.condition_id": goqu.I("c.id")}),
-		).
+		Select("task_id", "condition").
+		From(goqu.T("assignments")).
 		Where(goqu.Ex{"user_id": userID}).
 		ToSQL()
 	if err != nil {
@@ -82,19 +78,17 @@ func (s *TaskStoreImpl) getAssignedTask(ctx context.Context, userID int) (*domai
 	return &dest[0], nil
 }
 
-func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, blacklist []string) (*domain.AssignedTask, error) {
+func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, used *domain.TaskTopicUsed) (*domain.AssignedTask, error) {
 	if s == nil {
 		return nil, ErrNilReceiver
 	}
 
 	assigned, err := s.getAssignedTask(ctx, userID)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
 	if assigned != nil {
-		fmt.Println(err)
 		return assigned, nil
 	}
 
@@ -138,9 +132,17 @@ func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, blacklist []
 		ToSQL()
 
 	if _, err := tx.ExecContext(ctx, q, a...); err != nil {
-		fmt.Println(err)
 		return nil, ErrDatabaseExecutionFailere
 	}
+
+	q, a, err = dialect.
+		Insert("assignments").
+		Rows(goqu.Record{
+			"user_id":   userID,
+			"task_id":   dest.TaskID,
+			"condition": dest.Condition,
+		}).
+		ToSQL()
 
 	tx.Commit()
 
@@ -206,15 +208,21 @@ func (s *TaskStoreImpl) GetTask(ctx context.Context, id int64) (*domain.Task, er
 		return nil, ErrNilReceiver
 	}
 
-	q, a, err := dialect.Select("*").From("tasks").ToSQL()
+	q, a, err := dialect.
+		Select("id", "topic", "query", "title", "description").
+		From("tasks").
+		Where(goqu.Ex{"id": id}).
+		ToSQL()
 	if err != nil {
 		return nil, ErrQueryBuildFailure
 	}
 
 	rs := &domain.Task{}
 	if err := s.db.GetContext(ctx, rs, q, a...); err != nil {
+		fmt.Println(err)
 		return nil, ErrDatabaseExecutionFailere
 	}
+	fmt.Println(rs)
 
 	return rs, nil
 }

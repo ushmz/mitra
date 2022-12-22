@@ -60,11 +60,9 @@ DROP TABLE IF EXISTS `assignments`;
 CREATE TABLE `assignments` (
   `user_id` int NOT NULL,
   `task_id` int NOT NULL,
-  `condition_id` int NOT NULL,
+  `condition` varchar(16) NOT NULL,
   KEY `fk_assignments_task_id` (`task_id`),
-  CONSTRAINT `fk_assignments_task_id` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  KEY `fk_assignments_condition_id` (`condition_id`),
-  CONSTRAINT `fk_assignments_condition_id` FOREIGN KEY (`condition_id`) REFERENCES `conditions` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `fk_assignments_task_id` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `answers`;
@@ -172,7 +170,7 @@ DROP TABLE IF EXISTS `logs_serp_dwell_time`;
 CREATE TABLE `logs_serp_dwell_time` (
   `user_id` int NOT NULL,
   `task_id` int NOT NULL,
-  `condition_id` int DEFAULT NULL,
+  `condition` varchar(16) DEFAULT NULL,
   `time_on_page` int NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -200,12 +198,13 @@ CREATE TABLE `logs_event` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `task_id` int NOT NULL,
-  `condition_id` int DEFAULT NULL,
+  `condition` varchar(16) DEFAULT NULL,
   `time_on_page` int NOT NULL DEFAULT '0',
   `paged_at` int NOT NULL DEFAULT '0',
   `ranked_at` int NOT NULL DEFAULT '0',
   -- Proposed UI is displayed or not
   `is_visible` tinyint(1) NOT NULL DEFAULT '0',
+  `is_first` tinyint(1) NOT NULL DEFAULT '0',
   `event` varchar(10) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

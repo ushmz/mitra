@@ -94,6 +94,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	fu, err := h.Store.Auth.RegisterUser(ctx, p.ExternalID, secret)
 	if err != nil {
+		fmt.Println(err)
 		if errors.Is(err, store.ErrUIDAlreadyExists) {
 			render.Render(w, r, NewErrResponseRenderer(err, http.StatusConflict))
 			return
@@ -104,21 +105,23 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Store.User.CreateUser(ctx, fu)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return
 	}
 
-	// token, err := h.Store.Auth.GenerateToken(ctx, fu.FirebaseUID)
-	// if err != nil {
-	// 	render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
-	// 	return
-	// }
+	token, err := h.Store.Auth.GenerateToken(ctx, fu.FirebaseUID)
+	if err != nil {
+		fmt.Println(err)
+		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
+		return
+	}
 
 	render.Render(w, r, NewResponseRenderer(
 		&domain.User{
 			ID:         user.ID,
 			ExternalID: user.ExternalID,
-			Token:      "",
+			Token:      token,
 		},
 		http.StatusOK,
 	))
