@@ -26,6 +26,7 @@ func authRouter(db *sqlx.DB, fb *firebase.App) chi.Router {
 
 	r.Route("/user", func(r chi.Router) {
 		r.Post("/assign", h.Task.AssignTask)
+		r.Get("/code", h.User.GetCompletionCode)
 	})
 
 	r.Route("/task", func(r chi.Router) {

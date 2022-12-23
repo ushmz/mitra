@@ -7,6 +7,7 @@ import (
 	"mitra/domain"
 	"mitra/store"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -56,6 +57,11 @@ func generateSecret(length, lower, upper, digits, symbols int) string {
 	})
 
 	return string(inRune)
+}
+
+func generateCompletionCode() int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(1000)*1000 + rand.Intn(1000)
 }
 
 type UserHandler struct {
@@ -117,6 +123,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c := domain.CompletionCode{UserID: user.ID, Code: generateCompletionCode()}
+	if err := h.Store.User.SetCompletionCode(ctx, &c); err != nil {
+		fmt.Println(err)
+		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
+		return
+	}
+
 	render.Render(w, r, NewResponseRenderer(
 		&domain.User{
 			ID:         user.ID,
@@ -130,6 +143,29 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 type IssueCompletionCodeRequest struct {
 	domain.RequestBody
 	UserID int `db:"user_id"`
+}
+
+func (h *UserHandler) GetCompletionCode(w http.ResponseWriter, r *http.Request) {
+	if h == nil {
+		render.Render(w, r, NewErrResponseRenderer(nil, http.StatusInternalServerError))
+		return
+	}
+
+	ctx := r.Context()
+	param := r.URL.Query().Get("user")
+	userID, err := strconv.Atoi(param)
+	if err != nil {
+		render.Render(w, r, NewErrResponseRenderer(ErrInvalidParameter, http.StatusBadRequest))
+		return
+	}
+
+	code, err := h.Store.User.GetCompletionCode(ctx, userID)
+	if err != nil {
+		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
+		return
+	}
+
+	render.Render(w, r, NewResponseRenderer(code, http.StatusOK))
 }
 
 func (h *UserHandler) IssueCompletionCode(w http.ResponseWriter, r *http.Request) {

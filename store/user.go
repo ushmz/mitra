@@ -97,7 +97,13 @@ func (s *UserStoreImple) SetCompletionCode(ctx context.Context, c *domain.Comple
 		return ErrNilReceiver
 	}
 
-	q, a, err := dialect.Insert("completion_codes").Rows(c).ToSQL()
+	q, a, err := dialect.
+		Insert("completion_codes").
+		Rows(goqu.Record{
+			"user_id":         c.UserID,
+			"completion_code": c.Code,
+		}).
+		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}
