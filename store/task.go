@@ -19,6 +19,7 @@ type TaskStore interface {
 	ListTasks(ctx context.Context, limit, offset int) ([]domain.Task, error)
 	UpdateTasks(ctx context.Context, task *domain.Task) (*domain.Task, error)
 	DeleteTasks(ctx context.Context, id int64) error
+	CreateAnswer(ctx context.Context, answer *domain.Answer) error
 }
 
 // TaskStoreImpl : Implementation of TaskStore interface.
@@ -287,6 +288,33 @@ func (s *TaskStoreImpl) DeleteTasks(ctx context.Context, id int64) error {
 	}
 
 	q, a, err := dialect.Delete("tasks").Where(goqu.Ex{"id": id}).ToSQL()
+	if err != nil {
+		return ErrQueryBuildFailure
+	}
+
+	if _, err := s.db.ExecContext(ctx, q, a...); err != nil {
+		return ErrDatabaseExecutionFailere
+	}
+
+	return nil
+}
+
+func (s *TaskStoreImpl) CreateAnswer(ctx context.Context, answer *domain.Answer) error {
+	if s == nil {
+		return ErrNilReceiver
+	}
+
+	q, a, err := dialect.
+		Insert("answers").
+		Rows(goqu.Record{
+			"user_id":   answer.UserID,
+			"task_id":   answer.TaskID,
+			"condition": answer.Condition,
+			"answer":    answer.Answer,
+			"reason":    answer.Reason,
+		}).
+		Prepared(true).
+		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}

@@ -92,3 +92,32 @@ func (h *TaskHandler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 
 	render.Render(w, r, NewResponseRenderer(task, http.StatusOK))
 }
+
+type AnswerRequest struct {
+	domain.RequestBody
+	Answer domain.Answer `json:"answer"`
+}
+
+func (h *TaskHandler) CreateTaskAnswer(w http.ResponseWriter, r *http.Request) {
+	if h == nil {
+		render.Render(w, r, NewErrResponseRenderer(ErrNilReceiver, http.StatusInternalServerError))
+		return
+	}
+
+	ctx := r.Context()
+	p := &AnswerRequest{}
+	if err := render.Bind(r, p); err != nil {
+		fmt.Println(err)
+		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
+		return
+	}
+
+	err := h.Store.Task.CreateAnswer(ctx, &p.Answer)
+	if err != nil {
+		fmt.Println(err)
+		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
+		return
+	}
+
+	render.Render(w, r, NewResponseRenderer(nil, http.StatusCreated))
+}
