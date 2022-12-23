@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"fmt"
 	"mitra/domain"
 
 	"github.com/doug-martin/goqu/v9"
@@ -61,13 +60,11 @@ func (s *TaskStoreImpl) getAssignedTask(ctx context.Context, userID int) (*domai
 		Where(goqu.Ex{"user_id": userID}).
 		ToSQL()
 	if err != nil {
-		fmt.Println(err)
 		return nil, ErrQueryBuildFailure
 	}
 
 	dest := []domain.AssignedTask{}
 	if err := s.db.SelectContext(ctx, &dest, q, a...); err != nil {
-		fmt.Println(err)
 		return nil, ErrDatabaseExecutionFailere
 	}
 
@@ -92,7 +89,7 @@ func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, used *domain
 		return assigned, nil
 	}
 
-	q, a, err := dialect.
+	b := dialect.
 		Select("g.id", "g.task_id", "c.condition", "gc.counts").
 		From(goqu.T("groups").As("g")).
 		LeftJoin(
@@ -102,7 +99,17 @@ func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, used *domain
 		LeftJoin(
 			goqu.T("group_counts").As("gc"),
 			goqu.On(goqu.Ex{"g.id": goqu.I("gc.group_id")}),
-		).
+		)
+
+	if used.Task1 && (used.Task1 != used.Task2) {
+		b = b.Where(goqu.C("task_id").Eq(2))
+	}
+
+	if used.Task2 && (used.Task1 != used.Task2) {
+		b = b.Where(goqu.C("task_id").Eq(1))
+	}
+
+	q, a, err := b.
 		Order(goqu.I("gc.counts").Asc()).
 		Limit(1).
 		ToSQL()
@@ -219,10 +226,8 @@ func (s *TaskStoreImpl) GetTask(ctx context.Context, id int64) (*domain.Task, er
 
 	rs := &domain.Task{}
 	if err := s.db.GetContext(ctx, rs, q, a...); err != nil {
-		fmt.Println(err)
 		return nil, ErrDatabaseExecutionFailere
 	}
-	fmt.Println(rs)
 
 	return rs, nil
 }
