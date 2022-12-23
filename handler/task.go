@@ -112,8 +112,7 @@ func (h *TaskHandler) CreateTaskAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Store.Task.CreateAnswer(ctx, &p.Answer)
-	if err != nil {
+	if err := h.Store.Task.CreateAnswer(ctx, &p.Answer); err != nil {
 		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return

@@ -151,6 +151,9 @@ func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, used *domain
 			"condition": dest.Condition,
 		}).
 		ToSQL()
+	if _, err := tx.ExecContext(ctx, q, a...); err != nil {
+		return nil, ErrDatabaseExecutionFailere
+	}
 
 	tx.Commit()
 
