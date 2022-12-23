@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 services:
   app:
     build:
@@ -9,6 +9,8 @@ services:
       - 3333:3333
     depends_on:
       - db
+    environment:
+      - FIREBASE_CREDENTIALS_JSON
   db:
     image: mysql:8.0
     container_name: mitra-db
@@ -28,5 +30,4 @@ services:
       - ./database/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./database/mysql/init.d:/docker-entrypoint-initdb.d
       - ./database/mysql/log:/var/log/mysql
-    init: true
     tty: true
