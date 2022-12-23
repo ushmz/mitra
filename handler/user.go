@@ -155,12 +155,14 @@ func (h *UserHandler) GetCompletionCode(w http.ResponseWriter, r *http.Request) 
 	param := r.URL.Query().Get("user")
 	userID, err := strconv.Atoi(param)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(ErrInvalidParameter, http.StatusBadRequest))
 		return
 	}
 
 	code, err := h.Store.User.GetCompletionCode(ctx, userID)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return
 	}
@@ -176,6 +178,7 @@ func (h *UserHandler) IssueCompletionCode(w http.ResponseWriter, r *http.Request
 
 	p := &IssueCompletionCodeRequest{}
 	if err := render.Bind(r, p); err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
 		return
 	}
@@ -183,6 +186,7 @@ func (h *UserHandler) IssueCompletionCode(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	code, err := h.Store.User.GetCompletionCode(ctx, p.UserID)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return
 	}
@@ -197,6 +201,7 @@ func (h *UserHandler) IssueCompletionCode(w http.ResponseWriter, r *http.Request
 
 	err = h.Store.User.SetCompletionCode(ctx, &domain.CompletionCode{UserID: p.UserID, Code: code})
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return
 	}

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"mitra/domain"
 	"mitra/store"
 	"net/http"
@@ -65,6 +66,7 @@ func (h *SearchHandler) GetSimilarweb(w http.ResponseWriter, r *http.Request) {
 	taskIDs := []int{52, 53, 54, 55}
 	rs, err := h.Store.Search.GetSimilarwebPagesByPageIDs(ctx, taskIDs)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(ErrInternal, http.StatusInternalServerError))
 		return
 	}
@@ -110,6 +112,7 @@ func (h *SearchHandler) ListSearchResult(w http.ResponseWriter, r *http.Request)
 
 	result, err := h.Store.Search.GetSearchPages(r.Context(), p.TaskID, p.Offset, p.Limit, 10)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(ErrInternal, http.StatusInternalServerError))
 		return
 	}

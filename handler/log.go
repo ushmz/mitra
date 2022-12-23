@@ -53,6 +53,7 @@ func (h *LogHandler) CreateDwellTimeLog(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := h.Store.Log.CreateDwelltimeLog(ctx, m); err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return
 	}
@@ -95,6 +96,7 @@ func (h *LogHandler) CreateClickLog(w http.ResponseWriter, r *http.Request) {
 
 	p := &ClickLogRequest{}
 	if err := render.Bind(r, p); err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
 		return
 	}
@@ -111,6 +113,7 @@ func (h *LogHandler) CreateClickLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.Store.Log.CreateClickLog(ctx, l); err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return
 	}

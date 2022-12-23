@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"mitra/domain"
 	"mitra/store"
 	"net/http"
@@ -46,12 +47,14 @@ func (h *TaskHandler) AssignTask(w http.ResponseWriter, r *http.Request) {
 
 	p := &AssignTaskRequest{}
 	if err := render.Bind(r, p); err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusBadRequest))
 		return
 	}
 
 	assigned, err := h.Store.Task.AssignTask(r.Context(), p.UserID, &p.Used)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(err, http.StatusInternalServerError))
 		return
 	}
@@ -75,12 +78,14 @@ func (h *TaskHandler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 	param := r.URL.Query().Get("tid")
 	taskID, err := strconv.ParseInt(param, 0, 64)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewErrResponseRenderer(ErrInvalidParameter, http.StatusBadRequest))
 		return
 	}
 
 	task, err := h.Store.Task.GetTask(ctx, taskID)
 	if err != nil {
+		fmt.Println(err)
 		render.Render(w, r, NewResponseRenderer(ErrInternal, http.StatusInternalServerError))
 		return
 	}
