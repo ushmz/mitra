@@ -82,7 +82,7 @@ DROP TABLE IF EXISTS `search_sessions`;
 CREATE TABLE `search_sessions` (
   `user_id` int NOT NULL,
   `task_id` int NOT NULL,
-  `group_id` int DEFAULT NULL,
+  `condition` varchar(16) DEFAULT NULL,
   `started_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ended_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`,`task_id`)
@@ -177,35 +177,16 @@ CREATE TABLE `logs_serp_dwell_time` (
   PRIMARY KEY (`user_id`,`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-DROP TABLE IF EXISTS `logs_document_dwell_time`;
-CREATE TABLE `logs_document_dwell_time` (
-  `user_id` int NOT NULL,
-  `task_id` int NOT NULL,
-  `page_id` int NOT NULL,
-  `condition_id` int DEFAULT NULL,
-  -- Where does this page exist on search result pages. (in 10 pages)
-  `paged_at` int NOT NULL,
-  -- Were does this page exist on the $`page`th search result page.
-  `ranked_at` int NOT NULL,
-  `time_on_page` int NOT NULL DEFAULT '0',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`,`task_id`, `page_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 DROP TABLE IF EXISTS `logs_event`;
 CREATE TABLE `logs_event` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `user_id` int NOT NULL,
   `task_id` int NOT NULL,
   `condition` varchar(16) DEFAULT NULL,
-  `time_on_page` int NOT NULL DEFAULT '0',
   `paged_at` int NOT NULL DEFAULT '0',
   `ranked_at` int NOT NULL DEFAULT '0',
-  -- Proposed UI is displayed or not
   `is_visible` tinyint(1) NOT NULL DEFAULT '0',
   `is_first` tinyint(1) NOT NULL DEFAULT '0',
-  `event` varchar(10) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
