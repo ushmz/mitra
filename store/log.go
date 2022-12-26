@@ -17,7 +17,8 @@ type GetLogsOpt struct {
 }
 
 type LogStore interface {
-	CreateClickLog(context.Context, domain.ClickLog) error
+	CreateSearchSession(context.Context, *domain.SearchSession) error
+	CreateClickLog(context.Context, *domain.ClickLog) error
 	CreateDwelltimeLog(context.Context, domain.DwellTimeLog) error
 	ListClickLogs(context.Context) ([]domain.ClickLog, error)
 	ListDwellTimeLogs(context.Context) ([]domain.DwellTimeLog, error)
@@ -35,12 +36,42 @@ func NewLogStore(db *sqlx.DB) LogStore {
 }
 
 // CreateClickLog insert new row to DB
-func (s *LogStoreImpl) CreateClickLog(ctx context.Context, p domain.ClickLog) error {
+func (s *LogStoreImpl) CreateSearchSession(ctx context.Context, param *domain.SearchSession) error {
 	if s == nil {
 		return ErrNilReceiver
 	}
 
-	q, a, err := dialect.Insert("logs_event").Rows(p).ToSQL()
+	q, a, err := dialect.
+		Insert("search_sessions").
+		Rows(param).
+		OnConflict(
+			goqu.DoUpdate(
+				"ended_at",
+				goqu.Record{"ended_at": goqu.L("NOW()")})).
+		Prepared(true).
+		ToSQL()
+	if err != nil {
+		return ErrQueryBuildFailure
+	}
+
+	if _, err := s.db.ExecContext(ctx, q, a...); err != nil {
+		fmt.Println(err)
+		return ErrDatabaseExecutionFailere
+	}
+	return nil
+}
+
+// CreateClickLog insert new row to DB
+func (s *LogStoreImpl) CreateClickLog(ctx context.Context, p *domain.ClickLog) error {
+	if s == nil {
+		return ErrNilReceiver
+	}
+
+	q, a, err := dialect.
+		Insert("logs_event").
+		Rows(p).
+		Prepared(true).
+		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}

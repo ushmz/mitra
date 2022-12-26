@@ -44,6 +44,7 @@ func authRouter(db *sqlx.DB, fb *firebase.App) chi.Router {
 	})
 
 	r.Route("/log", func(r chi.Router) {
+		r.Post("/session", h.Log.CreateSearchSession)
 		r.Post("/dwell", h.Log.CreateDwellTimeLog)
 		r.Post("/click", h.Log.CreateClickLog)
 		// r.Post("/hover", h.Log.CreateHoverLog)

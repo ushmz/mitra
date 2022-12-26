@@ -1,5 +1,16 @@
 package domain
 
+type SearchSession struct {
+	// UserID : The ID of user (worker)
+	UserID int `db:"user_id" json:"user"`
+
+	// TaskID : The ID of task that user working.
+	TaskID int `db:"task_id" json:"task"`
+
+	// Condition : User's condition ID that means group and task category.
+	Condition string `db:"condition" json:"condition"`
+}
+
 // DwellTimeLog : Struct for SERP dwell time log
 type DwellTimeLog struct {
 	// UserID : The ID of user (worker)
@@ -26,8 +37,8 @@ type ClickLog struct {
 	// Condition : User's condition ID that means group and task category.
 	Condition string `db:"condition" json:"condition"`
 
-	// Time : User's page viewing time.
-	Time int `db:"time_on_page" json:"time"`
+	// Page : Which page is the search result located that user clicked.
+	Page int `db:"paged_at" json:"page"`
 
 	// Rank : Search result rank that user clicked.
 	Rank int `db:"ranked_at" json:"rank"`
@@ -37,6 +48,4 @@ type ClickLog struct {
 
 	// IsFirstClick : The click event is the first click or not
 	IsFirstClick bool `db:"is_first" json:"is_first"`
-
-	Event string `db:"event" json:"-"`
 }
