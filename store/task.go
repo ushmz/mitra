@@ -150,6 +150,7 @@ func (s *TaskStoreImpl) AssignTask(ctx context.Context, userID int, used *domain
 			"task_id":   dest.TaskID,
 			"condition": dest.Condition,
 		}).
+		Prepared(true).
 		ToSQL()
 	if _, err := tx.ExecContext(ctx, q, a...); err != nil {
 		return nil, ErrDatabaseExecutionFailere
@@ -172,6 +173,7 @@ func (s *TaskStoreImpl) CreateTask(ctx context.Context, title, description strin
 	q, a, err := dialect.
 		Insert("tasks").
 		Rows(goqu.Record{"title": title, "description": description}).
+		Prepared(true).
 		ToSQL()
 	if err != nil {
 		return nil, ErrQueryBuildFailure
@@ -223,6 +225,7 @@ func (s *TaskStoreImpl) GetTask(ctx context.Context, id int64) (*domain.Task, er
 		Select("id", "topic", "query", "title", "description").
 		From("tasks").
 		Where(goqu.Ex{"id": id}).
+		Prepared(true).
 		ToSQL()
 	if err != nil {
 		return nil, ErrQueryBuildFailure
@@ -271,7 +274,11 @@ func (s *TaskStoreImpl) UpdateTasks(ctx context.Context, task *domain.Task) (*do
 		return nil, ErrNilReceiver
 	}
 
-	q, a, err := dialect.Update("tasks").Set(task).ToSQL()
+	q, a, err := dialect.
+		Update("tasks").
+		Set(task).
+		Prepared(true).
+		ToSQL()
 	if err != nil {
 		return nil, ErrQueryBuildFailure
 	}
@@ -290,7 +297,11 @@ func (s *TaskStoreImpl) DeleteTasks(ctx context.Context, id int64) error {
 		return ErrNilReceiver
 	}
 
-	q, a, err := dialect.Delete("tasks").Where(goqu.Ex{"id": id}).ToSQL()
+	q, a, err := dialect.
+		Delete("tasks").
+		Where(goqu.Ex{"id": id}).
+		Prepared(true).
+		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}

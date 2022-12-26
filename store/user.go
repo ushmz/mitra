@@ -31,6 +31,7 @@ func (s *UserStoreImple) CreateUser(ctx context.Context, u *domain.ImplicitUser)
 	q, a, err := dialect.
 		Insert("users").
 		Rows(u).
+		Prepared(true).
 		ToSQL()
 	if err != nil {
 		return nil, ErrQueryBuildFailure
@@ -55,7 +56,9 @@ func (s *UserStoreImple) UpdateUserUID(ctx context.Context, userID int, uid stri
 	q, a, err := dialect.
 		Update("users").
 		Set(goqu.Record{"uid": uid}).
-		Where(goqu.C("user_id").Eq(userID)).ToSQL()
+		Where(goqu.C("user_id").Eq(userID)).
+		Prepared(true).
+		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
 	}
@@ -76,6 +79,7 @@ func (s *UserStoreImple) GetCompletionCode(ctx context.Context, userID int) (int
 		Select("completion_code").
 		From("completion_codes").
 		Where(goqu.C("user_id").Eq(userID)).
+		Prepared(true).
 		ToSQL()
 	if err != nil {
 		return 0, ErrQueryBuildFailure
@@ -103,6 +107,7 @@ func (s *UserStoreImple) SetCompletionCode(ctx context.Context, c *domain.Comple
 			"user_id":         c.UserID,
 			"completion_code": c.Code,
 		}).
+		Prepared(true).
 		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure

@@ -96,6 +96,7 @@ func (s *LogStoreImpl) CreateDwelltimeLog(ctx context.Context, p domain.DwellTim
 			goqu.DoUpdate(
 				"time_on_page",
 				goqu.Record{"time_on_page": goqu.L("time_on_page+1")})).
+		Prepared(true).
 		ToSQL()
 	if err != nil {
 		return ErrQueryBuildFailure
@@ -152,7 +153,7 @@ func (s *LogStoreImpl) GetClickLog(ctx context.Context, opt GetLogsOpt) ([]domai
 		b = b.Where(goqu.Ex{"condition_id": opt.ConditionID})
 	}
 
-	q, a, err := b.ToSQL()
+	q, a, err := b.Prepared(true).ToSQL()
 	if err != nil {
 		return nil, ErrQueryBuildFailure
 	}
