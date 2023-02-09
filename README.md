@@ -4,5 +4,4 @@ Backend API for [ushmz/varuna](https://github.com/ushmz/varuna), the information
 
 - Manage participants.
 - Register tasks and assign them to participants.
-- General web search engine API with the information to consider the privacy risks.
 - Collecting behavior logs of participants while doing web searches.

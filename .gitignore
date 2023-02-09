@@ -1,3 +1,4 @@
 data/
+prod-data/
 *.json
 config/*.yaml
